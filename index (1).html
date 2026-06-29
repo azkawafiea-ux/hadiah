@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday! Nachiiii</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400;1,400&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Gaya Dasar dengan Background Pola Bunga SVG Lembut */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fdf6f0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M30 12c-1-2-3-3-5-3-3 0-5 2-5 5 0 4 5 9 10 11 5-2 10-7 10-11 0-3-2-5-5-5-2 0-4 1-5 3zm0 36c-1-2-3-3-5-3-3 0-5 2-5 5 0 4 5 9 10 11 5-2 10-7 10-11 0-3-2-5-5-5-2 0-4 1-5 3z' fill='%23f5e6dc' fill-opacity='0.4'/%3E%3Ccircle cx='15' cy='30' r='2' fill='%23eacfbd' fill-opacity='0.5'/%3E%3Ccircle cx='45' cy='30' r='2' fill='%23eacfbd' fill-opacity='0.5'/%3E%3C/svg%3E");
+            color: #6b5b52;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* --- SCREEN 0: HALAMAN LOADING --- */
+        #loading-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #fdf6f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.8s ease;
+        }
+        .loading-flower {
+            width: 60px;
+            height: 60px;
+            animation: spinFlower 3s linear infinite;
+            margin-bottom: 20px;
+        }
+        .loading-text {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.2rem;
+            color: #8c7667;
+            letter-spacing: 1px;
+            animation: pulseText 1.5s ease-in-out infinite;
+        }
+        @keyframes spinFlower { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulseText { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+        /* --- SCREEN 1: GERBANG PASSWORD --- */
+        #password-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        
+        .pw-box {
+            background: rgba(255, 253, 251, 0.98); 
+            backdrop-filter: blur(5px);
+            padding: 40px 25px 30px 25px;
+            border-radius: 35px;
+            box-shadow: 0 15px 45px rgba(140, 118, 103, 0.15);
+            text-align: center;
+            width: 88%;
+            max-width: 340px;
+            box-sizing: border-box;
+            position: relative;
+            border: 1px solid rgba(230, 215, 203, 0.7);
+            z-index: 2;
+            margin-top: 60px; 
+        }
+
+        .lock-container {
+            position: absolute;
+            top: -75px; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;  
+            height: 120px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .lock-container svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 6px 12px rgba(140, 118, 103, 0.2));
+        }
+        
+        .pw-title {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: #6b5b52;
+            font-size: 1.15rem;
+            margin-top: 55px; 
+            margin-bottom: 20px;
+        }
+
+        .clue { 
+            font-size: 0.9rem; 
+            color: #b59279;
+            font-style: italic; 
+            margin-bottom: 15px; 
+            background: #fff6ee;
+            padding: 8px;
+            border-radius: 12px;
+            display: none; 
+        }
+        
+        .dots-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid #dcd1c4;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+        .dot.active {
+            background-color: #b59279;
+            border-color: #b59279;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+        .key {
+            background: #fffdfb;
+            border: 1.5px solid #f5ede4;
+            border-radius: 16px;
+            height: 52px;
+            font-size: 1.3rem;
+            color: #615650;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(168, 148, 134, 0.05);
+            transition: all 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .key:active {
+            background: #f7ebe1;
+            transform: scale(0.96);
+        }
+        
+        .zero-key { grid-column: 2; }
+        .backspace-key { grid-column: 3; font-size: 1.1rem; color: #a89486; }
+
+        /* --- SCREEN 2: TRANSISI KELOPAK MAWAR --- */
+        #transition-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #fdf6f0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+            overflow: hidden;
+            opacity: 1;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bloom-center {
+            width: 80px;
+            height: 80px;
+            position: absolute;
+            z-index: 10;
+            transform: scale(0);
+            opacity: 0;
+        }
+        .bloom-center.animate {
+            animation: centerBloom 2.5s forwards cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes centerBloom {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; }
+            75% { transform: scale(45) rotate(180deg); opacity: 1; filter: blur(0px); }
+            100% { transform: scale(65) rotate(240deg); opacity: 0; filter: blur(4px); }
+        }
+        
+        .falling-petal {
+            position: absolute;
+            top: -40px;
+            pointer-events: none;
+            animation: fallEffect linear forwards;
+            z-index: 5;
+        }
+        @keyframes fallEffect {
+            0% { transform: translateY(0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(0.6); opacity: 0; }
+            15% { opacity: 0.9; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(105vh) rotateX(360deg) rotateY(180deg) rotateZ(720deg) scale(1.1); opacity: 0; }
+        }
+
+        /* --- SCREEN 3: KADO INTERAKTIF & BUNGA LOVE --- */
+        #gift-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #fdf6f0;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9990;
+            opacity: 1;
+            transition: opacity 0.8s ease;
+        }
+        .gift-instruction {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.3rem;
+            color: #8c7667;
+            margin-bottom: 30px;
+            text-align: center;
+            padding: 0 20px;
+            animation: pulseText 1.5s ease-in-out infinite;
+        }
+        .gift-box-wrapper {
+            width: 140px;
+            height: 140px;
+            cursor: pointer;
+            animation: bounceGift 2s infinite ease-in-out;
+            -webkit-tap-highlight-color: transparent;
+        }
+        @keyframes bounceGift {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.05); }
+        }
+        #love-bloom-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9995;
+        }
+        .petal-love-node {
+            position: absolute;
+            transform: scale(0);
+            opacity: 0;
+            transition: all 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .love-text-center {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: #7a3142;
+            text-align: center;
+            font-weight: bold;
+            opacity: 0;
+            transform: scale(0.7);
+            transition: all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100;
+            background: rgba(253, 246, 240, 0.85);
+            padding: 15px 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(251, 111, 146, 0.2);
+            border: 1px dashed #ff85a2;
+        }
+        .love-text-center span {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            display: block;
+            margin-top: 5px;
+            font-weight: 300;
+            color: #a07882;
+            letter-spacing: 1px;
+        }
+
+        /* --- KONTEN UTAMA --- */
+        #main-content {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+            background: rgba(255, 251, 247, 0.94); 
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        header { text-align: center; padding: 60px 20px 20px 20px; }
+        h1 { font-family: 'Playfair Display', serif; font-size: 2.3rem; color: #8e7a6b; margin-bottom: 10px; }
+        .subtitle { font-style: italic; font-size: 0.95rem; color: #a09286; }
+
+        /* --- ARSITEKTUR BARU: SYSTEM MUSEUM PER HALAMAN --- */
+        .museum-section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: #8e7a6b;
+            margin: 30px 0 10px 0;
+            font-style: italic;
+        }
+
+        .page-museum-container {
+            position: relative;
+            width: 90%;
+            max-width: 440px;
+            min-height: 440px;
+            margin: 10px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .museum-page {
+            display: none; /* Sembunyikan halaman tidak aktif */
+            width: 100%;
+            background: white;
+            box-sizing: border-box;
+            padding: 25px;
+            border-radius: 30px;
+            box-shadow: 0 12px 40px rgba(168, 148, 134, 0.12);
+            border: 1px solid #f5ede4;
+            text-align: center;
+            animation: smoothFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .museum-page.active {
+            display: block; /* Hanya tampilkan halaman berstatus aktif */
+        }
+
+        .museum-page img {
+            width: 100%;
+            height: auto;
+            max-height: 280px;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.04);
+            background: #f7ebe1;
+        }
+
+        .museum-page h3 {
+            font-family: 'Playfair Display', serif;
+            color: #8e7a6b;
+            font-size: 1.35rem;
+            margin: 18px 0 8px 0;
+        }
+
+        .museum-page p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #7a6e67;
+            margin: 0;
+        }
+
+        @keyframes smoothFadeIn {
+            from { opacity: 0; transform: scale(0.96) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Navigasi Panah Kiri Kanan Bagian Bawah */
+        .nav-bottom-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin: 20px 0 40px 0;
+        }
+
+        .arrow-btn {
+            background: #white;
+            background-color: white;
+            border: 1px solid #e6d7cc;
+            color: #8e7a6b;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(168, 148, 134, 0.08);
+            transition: all 0.2s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .arrow-btn:active {
+            transform: scale(0.9);
+            background-color: #fff1f3;
+            border-color: #ffb3c6;
+        }
+
+        /* Indikator Penanda Halaman (Page Dots) */
+        .museum-page-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: -10px;
+            margin-bottom: 25px;
+        }
+        
+        .page-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e6d7cc;
+            transition: all 0.3s ease;
+        }
+        
+        .page-dot.active-dot {
+            background: #fb6f92;
+            width: 18px;
+            border-radius: 4px;
+        }
+
+        /* --- TOMBOL MUSIK --- */
+        .music-btn {
+            position: fixed;
+            top: 20px; right: 20px;
+            width: 45px; height: 45px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center; align-items: center;
+            box-shadow: 0 4px 12px rgba(168,148,134,0.15);
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 1.2rem;
+            border: 1px solid #e6d7cc;
+            transition: transform 0.3s ease;
+        }
+        .music-btn.playing { animation: rotateBtn 4s linear infinite; }
+        @keyframes rotateBtn { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .wishes { width: 85%; max-width: 440px; text-align: center; background: white; padding: 40px 25px; border-radius: 25px; margin: 10px auto 40px auto; box-shadow: 0 4px 25px rgba(168,148,134,0.06); border: 1px solid #f5ede4; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <audio id="myAudio" loop>
+        <source src="shape-of-my-heart.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="musicButton" class="music-btn" onclick="toggleMusic()" style="display: none;">🎵</div>
+
+    <div id="loading-screen">
+        <svg class="loading-flower" viewBox="0 0 100 100">
+            <path d="M50 25 C40 10, 25 15, 30 35 C35 55, 50 70, 50 85 C50 70, 65 55, 70 35 C75 15, 60 10, 50 25 Z" fill="#fb6f92"/>
+            <path d="M50 35 C45 25, 35 25, 38 40 C41 55, 50 65, 50 75 C50 65, 59 55, 62 40 C65 25, 55 25, 50 35 Z" fill="#ff85a2"/>
+        </svg>
+        <div class="loading-text">menyiapkan kejutan manis untukmu...</div>
+    </div>
+
+    <div id="password-screen">
+        <div class="pw-box">
+            <div class="lock-container" id="lockWrapper">
+                <svg id="lockSvg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ffe8a3;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#d4af37;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#a37c15;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="roseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ffccd5;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#fb6f92;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M60 90 V55 A40 40 0 0 1 140 55 V90" fill="none" stroke="url(#goldGrad)" stroke-width="16" stroke-linecap="round"/>
+                    <path d="M100 170 C40 130 20 95 20 65 C20 40 40 20 65 20 C82 20 93 30 100 40 C107 30 118 20 135 20 C160 20 180 40 180 65 C180 95 160 130 100 170 Z" fill="url(#goldGrad)" transform="translate(0, 15) scale(1)"/>
+                    <circle cx="100" cy="100" r="10" fill="#4a3b32"/>
+                    <polygon points="94,100 106,100 109,122 91,122" fill="#4a3b32"/>
+                    <circle cx="45" cy="115" r="16" fill="url(#roseGrad)" />
+                    <circle cx="45" cy="115" r="10" fill="#fff0f3" opacity="0.3"/>
+                    <circle cx="65" cy="135" r="12" fill="url(#roseGrad)" />
+                    <path d="M25 115 Q15 105 30 100 Z" fill="#99b898"/>
+                    <path d="M75 150 Q85 160 70 162 Z" fill="#99b898"/>
+                </svg>
+            </div>
+            
+            <div class="pw-title">hayolo, apa yaa kode nyaa</div>
+            <div id="clueText" class="clue">Clue: Tanggal Kita</div>
+            
+            <div class="dots-container">
+                <div class="dot" id="dot1"></div>
+                <div class="dot" id="dot2"></div>
+                <div class="dot" id="dot3"></div>
+                <div class="dot" id="dot4"></div>
+            </div>
+
+            <div class="keypad">
+                <div class="key" onclick="pressKey('1')">1</div>
+                <div class="key" onclick="pressKey('2')">2</div>
+                <div class="key" onclick="pressKey('3')">3</div>
+                <div class="key" onclick="pressKey('4')">4</div>
+                <div class="key" onclick="pressKey('5')">5</div>
+                <div class="key" onclick="pressKey('6')">6</div>
+                <div class="key" onclick="pressKey('7')">7</div>
+                <div class="key" onclick="pressKey('8')">8</div>
+                <div class="key" onclick="pressKey('9')">9</div>
+                <div class="key zero-key" onclick="pressKey('0')">0</div>
+                <div class="key backspace-key" onclick="deleteLastKey()">×</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="transition-screen">
+        <svg id="bloomFlower" class="bloom-center" viewBox="0 0 100 100">
+            <path d="M50 15 C30 -5, 5 -5, 15 35 C25 65, 50 80, 50 95 C50 80, 75 65, 85 35 C95 -5, 70 -5, 50 15 Z" fill="#fb6f92"/>
+            <path d="M50 30 C35 15, 15 15, 23 45 C31 65, 50 75, 50 88 C50 75, 69 65, 77 45 C85 15, 65 15, 50 30 Z" fill="#ff85a2"/>
+        </svg>
+    </div>
+
+    <div id="gift-screen">
+        <div class="gift-instruction" id="giftText">Ada kado kecil buat kamu, coba klik kado di bawah! </div>
+        <div class="gift-box-wrapper" id="giftBox" onclick="openGift()">
+            <svg viewBox="0 0 100 100" width="100%" height="100%">
+                <defs>
+                    <linearGradient id="giftGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ffccd5;" />
+                        <stop offset="100%" style="stop-color:#ff85a2;" />
+                    </linearGradient>
+                </defs>
+                <rect x="15" y="40" width="70" height="50" rx="6" fill="url(#giftGrad)" stroke="#ff4d7d" stroke-width="2"/>
+                <rect x="10" y="30" width="80" height="15" rx="4" fill="#ff85a2" stroke="#ff4d7d" stroke-width="2"/>
+                <rect x="44" y="30" width="12" height="60" fill="#fff"/>
+                <rect x="15" y="58" width="70" height="12" fill="#fff"/>
+                <path d="M49 30 C35 10, 30 25, 45 30 Z" fill="#fff" stroke="#ff85a2" stroke-width="1"/>
+                <path d="M51 30 C65 10, 70 25, 55 30 Z" fill="#fff" stroke="#ff85a2" stroke-width="1"/>
+            </svg>
+        </div>
+        <div id="love-bloom-container">
+            <div class="love-text-center" id="nachiiText">
+                Nachii <span>dari Wapel</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <header>
+            <h1>Selamat Ulang Tahun! princess kuuu</h1>
+            <p class="subtitle">Sebuah cerita singkat tentang bagaimana semesta mempertemukan kita.</p>
+        </header>
+
+        <div class="museum-section-title">~ Museum Kenangan Kita`</div>
+        
+        <div class="page-museum-container">
+            <div class="museum-page active">
+                <img src="1000532909.jpg" alt="8 Agustus 2025 ">
+                <h3>1. Awal Mula Cerita</h3>
+                <p>Ingat foto ini? Ini adalah momen di mana kita pertama kali kenal dan foto bareng. Waktu itu suasananya masih canggung banget, tapi di situlah semua cerita manis ini dimulai.</p>
+            </div>
+
+            <div class="museum-page">
+                <img src="Agus.jpg" alt="Event Agustus">
+                <h3>2. Momen Event Agustus</h3>
+                <p>Lewat obrolan-obrolan kecil yang awalnya santai, ternyata kita punya banyak kecocokan. Foto di event bulan Agustus ini jadi saksi kebersamaan kita yang makin lekat.</p>
+            </div>
+        
+<div class="museum-page"><img src="gor-taekwondo.jpg"><h3>3. Awal Cerita yang Tidak Terlupakan</h3><p>Hari itu kita sama-sama pulang tanpa medali yang diinginkan. Sama-sama kalah, tapi entah kenapa justru dari hari itu aku mulai merasa menang... karena bisa mengenalmu lebih dekat. Ternyata, tidak semua kekalahan berakhir sedih.</p></div>
+<div class="museum-page"><img src="foto-kelas.jpg"><h3>4. Momen Kecil yang Jadi Berharga</h3><p>Cuma foto iseng di kelas, tanpa rencana apa-apa. Tapi sekarang, justru foto sederhana ini yang paling sering bikin senyum sendiri. Kadang kenangan terbaik memang datang dari hal yang paling biasa.</p></div>
+<div class="museum-page"><img src="jajan.jpg"><h3>5. Langkah Kecil Bersama</h3><p>Berjalan berdampingan sambil bingung mau jajan apa. Obrolannya mungkin sudah lupa, tapi rasanya masih sama. Ternyata sesederhana jalan bareng aja sudah cukup bikin hari terasa lebih menyenangkan.</p></div>
+<div class="museum-page"><img src="bunga.jpg"><h3>6. Senyummu Hari Itu</h3><p>Melihat kamu menerima bunga dengan senyum itu... rasanya semua usaha kecil yang kulakukan langsung terbayar. Semoga bunga itu memang akan layu, tapi rasa bahagia di hari itu jangan sampai ikut hilang.</p></div>
+<div class="museum-page"><img src="photobooth.jpg"><h3>7. Foto Pertama, Kenangan Pertama</h3><p>Photobooth pertama kita. Masih malu-malu, masih bingung gaya apa. Tapi justru karena itu, foto ini jadi awal dari banyak kenangan yang nantinya bakal kita simpan.</p></div>
+<div class="museum-page"><img src="gandeng.jpg"><h3>8. Deg-degan yang Tidak Bisa Disembunyikan</h3><p>Hari pertama bisa jalan sambil gandeng kamu. Jujur aja, waktu itu deg-degannya bukan main. Berusaha kelihatan biasa, padahal dalam hati senyum terus dari awal sampai pulang.</p></div>
+<div class="museum-page"><img src="stickman.jpg"><h3>9. Karya Paling Aneh, Tapi Paling Lucu</h3><p>Gambarnya memang jelek, bahkan bisa dibilang gagal total. Tapi justru karena dibuat asal-asalan, sekarang malah jadi salah satu kenangan paling lucu yang kita punya.</p></div>
+<div class="museum-page"><img src="kamu.jpg"><h3>10. Senyum Favoritku</h3><p>Mungkin ini cuma foto biasa buat kamu. Tapi buat aku, ini salah satu foto yang paling sering kulihat. Karena setiap senyummu selalu berhasil bikin hariku terasa lebih baik.</p></div>
+<div class="museum-page"><img src="terimakasih.jpg"><h3>11. Terima Kasih Sudah Hadir</h3><p>Terima kasih sudah menjadi bagian dari cerita yang mungkin awalnya tidak pernah aku bayangkan. Dari obrolan kecil, candaan receh, sampai semua momen yang ada di halaman-halaman sebelumnya... semuanya punya tempat spesial di ingatanku.</p></div>
+<div class="museum-page"><img src="ending.jpg"><h3>12. Satu Foto yang Belum Sempat Ada...</h3><p>Dari semua kenangan yang kita punya, ternyata masih ada satu yang belum sempat kita buat... Foto terakhir kita sebagai siswa kelas 10. Mungkin fotonya belum pernah ada. Tapi semoga suatu hari nanti kita bisa melengkapinya. Sampai saat itu tiba, semua cerita ini akan tetap jadi kenangan favoritku. </p></div>
+
+</div>
+
+        <div class="museum-page-dots">
+            <div class="page-dot active-dot"></div>
+            <div class="page-dot"></div>
+            <div class="page-dot"></div>
+            <div class="page-dot"></div>
+            <div class="page-dot"></div>
+            <div class="page-dot"></div>
+            <div class="page-dot"></div>
+            <div class="page-dot"></div>
+            <div class="page-dot"></div>
+            <div class="page-dot"></div>
+            <div class="page-dot"></div>
+            <div class="page-dot"></div>
+        </div>
+
+        <div class="nav-bottom-container">
+            <div class="arrow-btn" onclick="changePage(-1)"><</div>
+            <div class="arrow-btn" onclick="changePage(1)">></div>
+        </div>
+
+        <div class="wishes">
+            <h2 style="color: #8e7a6b; margin-top: 0; font-family: 'Playfair Display', serif;">HBD yaa! </h2>
+            <p>
+                Di hari yang spesial ini, aku cuma mau bilang terima kasih sudah hadir di dunia ini dan melengkapi hari-hariku. Semoga kamu selalu dikelilingi kebahagiaan, kesehatan, dan semua impianmu mekar dengan indah seperti tema Laubloom ini.
+            </p>
+            <p style="font-weight: bold; color: #8e7a6b; margin-top: 20px; margin-bottom: 0;"> Dengan Ketulusan Hati</p>
+        </div>
+    </div>
+
+    <script>
+        let currentPassword = "";
+        let wrongCount = 0;
+        
+        const clueText = document.getElementById('clueText');
+        const lockWrapper = document.getElementById('lockWrapper');
+        const audio = document.getElementById('myAudio');
+        const musicBtn = document.getElementById('musicButton');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const loadScreen = document.getElementById('loading-screen');
+                loadScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadScreen.style.display = 'none';
+                    const pwScreen = document.getElementById('password-screen');
+                    pwScreen.style.display = 'flex';
+                    setTimeout(() => { pwScreen.style.opacity = '1'; }, 50);
+                }, 800);
+            }, 3000);
+        });
+
+        function updateDots() {
+            for (let i = 1; i <= 4; i++) {
+                const dot = document.getElementById(`dot${i}`);
+                if (i <= currentPassword.length) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            }
+        }
+
+        function pressKey(num) {
+            if (currentPassword.length >= 4) return;
+            currentPassword += num;
+            updateDots();
+
+            if (currentPassword.length === 4) {
+                setTimeout(() => {
+                    if (currentPassword === "2001") {
+                        lockWrapper.innerHTML = `
+                            <svg id="keySvg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M100 80 C80 50 50 50 50 75 C50 100 100 130 100 130 C100 130 150 100 150 75 C150 50 120 50 100 80 Z" fill="none" stroke="url(#goldGrad)" stroke-width="14"/>
+                                <rect x="93" y="115" width="14" height="65" rx="5" fill="url(#goldGrad)" />
+                                <rect x="105" y="150" width="22" height="10" rx="2" fill="url(#goldGrad)" />
+                                <rect x="105" y="166" width="22" height="10" rx="2" fill="url(#goldGrad)" />
+                                <circle cx="100" cy="85" r="10" fill="url(#roseGrad)"/>
+                                <circle cx="100" cy="85" r="5" fill="#fff" opacity="0.4"/>
+                            </svg>
+                        `;
+                        lockWrapper.style.transform = "translateX(-50%) scale(1.2) rotate(25deg)";
+                        setTimeout(() => { unlockWebsite(); }, 600);
+                    } else {
+                        wrongCount++;
+                        handleWrongPassword();
+                    }
+                }, 300);
+            }
+        }
+
+        function deleteLastKey() {
+            if (currentPassword.length > 0) {
+                currentPassword = currentPassword.slice(0, -1);
+                updateDots();
+            }
+        }
+
+        function clearDisplay() { currentPassword = ""; updateDots(); }
+
+        function handleWrongPassword() {
+            if (wrongCount === 1) { alert("hayo tebakkk "); clearDisplay(); } 
+            else if (wrongCount === 2) { alert("seriuss lupaaa nih ku kasi clue "); clueText.innerText = "Clue: Tanggal Kita"; clueText.style.display = "block"; clearDisplay(); } 
+            else if (wrongCount >= 3) { alert("masa sala terus yauda aku kasi deh "); clueText.innerHTML = "Password-nya: <span style='font-size:1.1rem; font-weight:bold; letter-spacing:2px;'>2001</span>"; clueText.style.display = "block"; clearDisplay(); }
+        }
+
+        function unlockWebsite() {
+            const pwScreen = document.getElementById('password-screen');
+            pwScreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                pwScreen.style.display = 'none';
+                const transScreen = document.getElementById('transition-screen');
+                const bloomFlower = document.getElementById('bloomFlower');
+                transScreen.style.display = 'flex';
+                
+                setTimeout(() => {
+                    bloomFlower.classList.add('animate');
+                    createPremiumPetals();
+                    playMusic();
+                }, 50);
+
+                setTimeout(() => {
+                    transScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        transScreen.style.display = 'none';
+                        document.getElementById('gift-screen').style.display = 'flex';
+                    }, 800);
+                }, 1900);
+            }, 500);
+        }
+
+        function createPremiumPetals() {
+            const container = document.getElementById('transition-screen');
+            for (let i = 0; i < 35; i++) {
+                const petalDiv = document.createElement('div');
+                petalDiv.className = 'falling-petal';
+                const colors = ['#fb6f92', '#ff85a2', '#ff92af', '#ffb3c6', '#ffccd5'];
+                const chosenColor = colors[Math.floor(Math.random() * colors.length)];
+                petalDiv.innerHTML = `<svg width="30" height="30" viewBox="0 0 40 40"><path d="M20 5 C10 2, 2 12, 8 24 C14 34, 26 38, 32 30 C38 22, 30 8, 20 5 Z" fill="${chosenColor}"/></svg>`;
+                petalDiv.style.left = Math.random() * 100 + 'vw';
+                petalDiv.style.animationDuration = (Math.random() * 1.5 + 2.2) + 's';
+                petalDiv.style.animationDelay = (Math.random() * 0.5) + 's';
+                container.appendChild(petalDiv);
+            }
+        }
+
+        function openGift() {
+            document.getElementById('giftText').style.display = 'none';
+            document.getElementById('giftBox').style.display = 'none';
+            const loveContainer = document.getElementById('love-bloom-container');
+            loveContainer.style.display = 'flex';
+            
+            const totalPetals = 36;
+            const radiusScale = 12;
+            
+            for (let i = 0; i < totalPetals; i++) {
+                const t = (i / totalPetals) * 2 * Math.PI;
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                
+                const petal = document.createElement('div');
+                petal.className = 'petal-love-node';
+                const colors = ['#fb6f92', '#ff85a2', '#ffccd5', '#ff4d7d'];
+                petal.innerHTML = `<svg width="24" height="24" viewBox="0 0 40 40"><path d="M20 5 C10 2, 2 12, 8 24 C14 34, 26 38, 32 30 C38 22, 30 8, 20 5 Z" fill="${colors[Math.floor(Math.random() * colors.length)]}"/></svg>`;
+                
+                petal.style.left = `calc(50% + ${x * radiusScale}px - 12px)`;
+                petal.style.top = `calc(50% + ${y * radiusScale}px - 12px)`;
+                loveContainer.appendChild(petal);
+                
+                setTimeout(() => {
+                    petal.style.opacity = '1';
+                    petal.style.transform = `scale(1) rotate(${Math.random() * 45}deg)`;
+                }, i * 35);
+            }
+            
+            setTimeout(() => {
+                const textCenter = document.getElementById('nachiiText');
+                textCenter.style.opacity = '1';
+                textCenter.style.transform = 'scale(1)';
+            }, 800);
+            
+            setTimeout(() => {
+                document.getElementById('gift-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('gift-screen').style.display = 'none';
+                    const mainContent = document.getElementById('main-content');
+                    mainContent.style.display = 'flex';
+                    musicBtn.style.display = 'flex';
+                    setTimeout(() => { mainContent.style.opacity = '1'; }, 50);
+                }, 800);
+            }, 4800);
+        }
+
+        /* --- LOGIKA NAVIGASI MUSEUM PER HALAMAN --- */
+        let currentPageIndex = 0;
+        const museumPages = document.querySelectorAll('.museum-page');
+        const pageDots = document.querySelectorAll('.page-dot');
+
+        function changePage(step) {
+            // Hilangkan status aktif halaman saat ini
+            museumPages[currentPageIndex].classList.remove('active');
+            pageDots[currentPageIndex].classList.remove('active-dot');
+
+            // Hitung indeks berikutnya (berputar secara melingkar)
+            currentPageIndex += step;
+            if (currentPageIndex >= museumPages.length) {
+                currentPageIndex = 0;
+            } else if (currentPageIndex < 0) {
+                currentPageIndex = museumPages.length - 1;
+            }
+
+            // Aktifkan halaman dan dot baru
+            museumPages[currentPageIndex].classList.add('active');
+            pageDots[currentPageIndex].classList.add('active-dot');
+        }
+
+        function playMusic() {
+            audio.play().then(() => { musicBtn.classList.add('playing'); musicBtn.innerText = ''; }).catch(err => {});
+        }
+
+        function toggleMusic() {
+            if (audio.paused) { audio.play(); musicBtn.classList.add('playing'); musicBtn.innerText = ''; } 
+            else { audio.pause(); musicBtn.classList.remove('playing'); musicBtn.innerText = ''; }
+        }
+    </script>
+</body>
+</html>
